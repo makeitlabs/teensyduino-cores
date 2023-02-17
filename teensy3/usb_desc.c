@@ -126,6 +126,44 @@ static uint8_t device_descriptor[] = {
 // Each HID interface needs a special report descriptor that tells
 // the meaning and format of the data.
 
+#ifdef TORMACH_INTERFACE
+static uint8_t tormach_report_desc[] = {
+0x05, 0x0C,        // Usage Page (Consumer)
+0x09, 0x01,        // Usage (Consumer Control)
+0xA1, 0x01,        // Collection (Application)
+0x15, 0x00,        //   Logical Minimum (0)
+0x25, 0x01,        //   Logical Maximum (1)
+0x75, 0x01,        //   Report Size (1)
+0x95, 0x08,        //   Report Count (8)
+0x05, 0x09,        //   Usage Page (Button)
+0x19, 0x01,        //   Usage Minimum (0x01)
+0x29, 0x08,        //   Usage Maximum (0x08)
+0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+0x15, 0x00,        //   Logical Minimum (0)
+0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65534)
+0x75, 0x10,        //   Report Size (16)
+0x95, 0x09,        //   Report Count (9)
+0x05, 0x01,        //   Usage Page (Generic Desktop Ctrls)
+0x19, 0x30,        //   Usage Minimum (X)
+0x29, 0x34,        //   Usage Maximum (Ry)
+0x09, 0x00,        //   Usage (Undefined)
+0x09, 0x38,        //   Usage (Wheel)
+0x05, 0x02,        //   Usage Page (Sim Ctrls)
+0x09, 0x02,        //   Usage (Automobile Sim Dev)
+0x09, 0xC4,        //   Usage (Accelerator)
+0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+0x15, 0x00,        //   Logical Minimum (0)
+0x25, 0x01,        //   Logical Maximum (1)
+0x75, 0x01,        //   Report Size (1)
+0x95, 0x08,        //   Report Count (8)
+0x05, 0x08,        //   Usage Page (LEDs)
+0x19, 0x01,        //   Usage Minimum (Num Lock)
+0x29, 0x08,        //   Usage Maximum (Do Not Disturb)
+0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0xC0,              // End Collection
+};
+#endif
+
 #ifdef KEYBOARD_INTERFACE
 // Keyboard Protocol 1, HID 1.11 spec, Appendix B, page 59-60
 static uint8_t keyboard_report_desc[] = {
@@ -553,7 +591,15 @@ static uint8_t flightsim_report_desc[] = {
 #define SEREMU_INTERFACE_DESC_SIZE	0
 #endif
 
-#define JOYSTICK_INTERFACE_DESC_POS	SEREMU_INTERFACE_DESC_POS+SEREMU_INTERFACE_DESC_SIZE
+#define TORMACH_INTERFACE_DESC_POS      SEREMU_INTERFACE_DESC_POS+SEREMU_INTERFACE_DESC_SIZE
+#ifdef TORMACH_INTERFACE
+#define TORMACH_INTERFACE_DESC_SIZE     9+9+7+7
+#define TORMACH_HID_DESC_OFFSET         TORMACH_INTERFACE_DESC_POS+9
+#else
+#define TORMACH_INTERFACE_DESC_SIZE     0
+#endif
+
+#define JOYSTICK_INTERFACE_DESC_POS	TORMACH_INTERFACE_DESC_POS+TORMACH_INTERFACE_DESC_SIZE
 #ifdef  JOYSTICK_INTERFACE
 #define JOYSTICK_INTERFACE_DESC_SIZE	9+9+7
 #define JOYSTICK_HID_DESC_OFFSET	JOYSTICK_INTERFACE_DESC_POS+9
@@ -1231,6 +1277,42 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         SEREMU_RX_INTERVAL,			// bInterval
 #endif // SEREMU_INTERFACE
 
+#ifdef TORMACH_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        TORMACH_INTERFACE,                     // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        2,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(tormach_report_desc)),       // wDescriptorLength
+        MSB(sizeof(tormach_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        TORMACH_TX_ENDPOINT | 0x80,             // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        64, 0,                     // wMaxPacketSize
+        TORMACH_TX_INTERVAL,                    // bInterval
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        TORMACH_RX_ENDPOINT,                    // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        16, 0,                     // wMaxPacketSize
+        TORMACH_RX_INTERVAL,			// bInterval
+#endif // TORMACH_INTERFACE
+
 #ifdef JOYSTICK_INTERFACE
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
@@ -1848,10 +1930,17 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 	//wValue, wIndex, address,          length
 	{0x0100, 0x0000, device_descriptor, sizeof(device_descriptor)},
 	{0x0200, 0x0000, config_descriptor, sizeof(config_descriptor)},
+
 #ifdef SEREMU_INTERFACE
 	{0x2200, SEREMU_INTERFACE, seremu_report_desc, sizeof(seremu_report_desc)},
 	{0x2100, SEREMU_INTERFACE, config_descriptor+SEREMU_HID_DESC_OFFSET, 9},
 #endif
+
+#ifdef TORMACH_INTERFACE
+        {0x2200, TORMACH_INTERFACE, tormach_report_desc, sizeof(tormach_report_desc)},
+        {0x2100, TORMACH_INTERFACE, config_descriptor+TORMACH_HID_DESC_OFFSET, 9},
+#endif
+
 #ifdef KEYBOARD_INTERFACE
         {0x2200, KEYBOARD_INTERFACE, keyboard_report_desc, sizeof(keyboard_report_desc)},
         {0x2100, KEYBOARD_INTERFACE, config_descriptor+KEYBOARD_HID_DESC_OFFSET, 9},

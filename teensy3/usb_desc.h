@@ -115,8 +115,45 @@ If these instructions are missing steps or could be improved, please
 let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 */
 
+//
+// USB_TORMACH adds support for emulating a Tormach PathPilot Operator Console HID device
+// 2023-FEB-16 - steve.richardson@makeitlabs.com
+//
+#if defined(USB_TORMACH)
+  #define VENDOR_ID             0x16C0
+  #define PRODUCT_ID            0x048b
+  #define DEVICE_CLASS          0x03
+  #define MANUFACTURER_NAME {'T', 'o', 'r', 'm', 'a', 'c', 'h'}
+  #define MANUFACTURER_NAME_LEN 7
+  #define PRODUCT_NAME    {'C', 'o', 'n', 's', 'o', 'l', 'e', ' ', 'C', 'o', 'n', 't', 'r', 'o', 'l', 'l', 'e', 'r'}
+  #define PRODUCT_NAME_LEN      18
+  #define EP0_SIZE              64
+  #define NUM_ENDPOINTS         5
+  #define NUM_USB_BUFFERS       20
+  #define NUM_INTERFACE         3
+  #define TORMACH_INTERFACE     0 
+  #define TORMACH_TX_ENDPOINT   1
+  #define TORMACH_TX_SIZE       17
+  #define TORMACH_TX_INTERVAL   1
+  #define TORMACH_RX_ENDPOINT   2
+  #define TORMACH_RX_SIZE       1
+  #define TORMACH_RX_INTERVAL   0
+  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_STATUS_INTERFACE	1
+  #define CDC_DATA_INTERFACE	2
+  #define CDC_ACM_ENDPOINT	3
+  #define CDC_RX_ENDPOINT       4
+  #define CDC_TX_ENDPOINT       5
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE           64
+  #define CDC_TX_SIZE           64
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
-#if defined(USB_SERIAL)
+#elif defined(USB_SERIAL)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0483
   #define DEVICE_CLASS		2	// 2 = Communication Class

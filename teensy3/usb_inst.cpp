@@ -33,6 +33,11 @@
 
 #if F_CPU >= 20000000
 
+#ifdef USB_TORMACH
+usb_tormach_class Tormach;
+uint8_t usb_tormach_class::manual_mode = 0;
+#endif
+
 #ifdef CDC_DATA_INTERFACE
 #ifdef CDC_STATUS_INTERFACE
 usb_serial_class Serial;
@@ -83,6 +88,7 @@ uint8_t usb_joystick_class::manual_mode = 0;
 #ifdef USB_DISABLED
 usb_serial_class Serial;
 #endif
+
 
 
 #else // F_CPU < 20 MHz
