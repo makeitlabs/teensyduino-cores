@@ -128,9 +128,9 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME    {'C', 'o', 'n', 's', 'o', 'l', 'e', ' ', 'C', 'o', 'n', 't', 'r', 'o', 'l', 'l', 'e', 'r'}
   #define PRODUCT_NAME_LEN      18
   #define EP0_SIZE              64
-  #define NUM_ENDPOINTS         5
+  #define NUM_ENDPOINTS         7
   #define NUM_USB_BUFFERS       20
-  #define NUM_INTERFACE         3
+  #define NUM_INTERFACE         5
   #define TORMACH_INTERFACE     0 
   #define TORMACH_TX_ENDPOINT   1
   #define TORMACH_TX_SIZE       17
@@ -138,20 +138,30 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define TORMACH_RX_ENDPOINT   2
   #define TORMACH_RX_SIZE       1
   #define TORMACH_RX_INTERVAL   0
-  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_IAD_DESCRIPTOR	  1
   #define CDC_STATUS_INTERFACE	1
-  #define CDC_DATA_INTERFACE	2
-  #define CDC_ACM_ENDPOINT	3
+  #define CDC_DATA_INTERFACE	  2
+  #define CDC_ACM_ENDPOINT	    3
   #define CDC_RX_ENDPOINT       4
   #define CDC_TX_ENDPOINT       5
   #define CDC_ACM_SIZE          16
   #define CDC_RX_SIZE           64
   #define CDC_TX_SIZE           64
+  #define KEYBOARD_INTERFACE    3
+  #define KEYBOARD_ENDPOINT     6
+  #define KEYBOARD_SIZE         8
+  #define KEYBOARD_INTERVAL     1
+  #define KEYMEDIA_INTERFACE    4
+  #define KEYMEDIA_ENDPOINT     7
+  #define KEYMEDIA_SIZE         8
+  #define KEYMEDIA_INTERVAL     4
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT4_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_SERIAL)
   #define VENDOR_ID		0x16C0
